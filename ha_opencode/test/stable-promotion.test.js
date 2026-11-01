@@ -17,7 +17,8 @@ test("stable promotion retains stable identity, storage defaults and optional sp
   const config = yaml("config.yaml");
   assert.equal(config.name, "OpenCode");
   assert.equal(config.slug, "ha_opencode");
-  assert.equal(config.image, "ghcr.io/magnusoverli/ha_opencode");
+  // This fork builds locally, so no prebuilt image is referenced.
+  assert.equal(config.image, undefined);
   assert.match(config.version, /^\d+\.\d+\.\d+$/);
   assert.equal(config.panel_title, "OpenCode");
   assert.equal(config.options.openchamber_allow_remote_speech, false);
