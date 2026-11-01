@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Claude Code window of the terminal (enabled by claude_code_enabled).
+# Runs in /homeassistant with sign-in and history kept under /data/claude-code,
+# and gets the add-on's Home Assistant tools through claude-ha-mcp.
+set -u
+
+GREEN='\033[38;2;17;209;22m'
+YELLOW='\033[38;2;246;116;0m'
+GRAY='\033[38;2;127;140;141m'
+NC='\033[0m'
+
+CLAUDE_ROOT=/data/claude-code
+export CLAUDE_CONFIG_DIR="${CLAUDE_ROOT}/config"
+# The image pins Claude Code; app updates bring new versions.
+export DISABLE_AUTOUPDATER=1
+export NODE_OPTIONS="--max-old-space-size=1024"
+umask 077
+mkdir -p "${CLAUDE_CONFIG_DIR}"
+
+MCP_CONFIG="${CLAUDE_ROOT}/ha-mcp.json"
+SETTINGS="${CLAUDE_ROOT}/managed-settings.json"
+
+# Only the wrapper path goes into the file; tokens stay in root-only runtime state.
+printf '%s\n' '{"mcpServers":{"home-assistant":{"type":"stdio","command":"/usr/local/bin/claude-ha-mcp","args":[]}}}' > "${MCP_CONFIG}"
+
+# Mirror OpenCode's sensitive-file read rule (restrict_sensitive_files).
+if [ "${OPENCODE_RESTRICT_SENSITIVE_FILES:-true}" = "true" ]; then
+    cat > "${SETTINGS}" <<'JSON'
+{
+  "permissions": {
+    "deny": [
+      "Read(**/secrets.yaml)",
+      "Read(//homeassistant/.storage/**)",
+      "Read(//homeassistant/.cloud/**)",
+      "Read(//homeassistant/ssl/**)",
+      "Read(**/*.key)",
+      "Read(**/*.pem)"
+    ]
+  }
+}
+JSON
+else
+    printf '%s\n' '{}' > "${SETTINGS}"
+fi
+
+cd /homeassistant 2>/dev/null || cd /data
+
+while true; do
+    clear
+    echo -e "${GREEN}Claude Code $(cat /usr/local/share/claude-code-version 2>/dev/null || true)${NC} ${GRAY}in /homeassistant${NC}"
+    echo -e "${GRAY}Switch windows: Ctrl+B then N. Sign in with /login, or set ANTHROPIC_API_KEY in env_vars.${NC}"
+    ARGS=(--settings "${SETTINGS}")
+    if /usr/local/bin/claude-ha-mcp --check; then
+        ARGS+=(--mcp-config "${MCP_CONFIG}")
+    else
+        echo -e "${YELLOW}Home Assistant tools are off (enable OpenCode Home Assistant tools to use them here).${NC}"
+    fi
+    echo ""
+    /usr/local/bin/claude "${ARGS[@]}"
+    echo ""
+    read -r -p "Claude Code exited. Press Enter to start it again. " _ || sleep 5
+done

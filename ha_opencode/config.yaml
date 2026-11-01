@@ -81,6 +81,7 @@ options:
   cursor_blink: false
   # Action-first response formatting for easier scanning and execution.
   focus_mode: false
+  claude_code_enabled: false
 
   # --- 2. Home Assistant integration -------------------------------------
   mcp_enabled: true
@@ -186,6 +187,7 @@ schema:
   cursor_style: list(block|underline|bar)
   cursor_blink: bool
   focus_mode: bool
+  claude_code_enabled: bool
 
   # --- 2. Home Assistant integration -------------------------------------
   mcp_enabled: bool
