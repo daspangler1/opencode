@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Home Assistant MCP tools for Claude Code.
+#
+# Starts a private stdio instance of the bundled MCP server with the same
+# allowlisted settings OpenCode's sidecar uses (tool profile, tokens, Zigbee,
+# screenshots, decision notes). It never touches OpenCode's sidecar socket.
+#
+#   claude-ha-mcp           run the MCP server on stdin/stdout
+#   claude-ha-mcp --check   exit 0 only when the tools are enabled and usable
+set -eu
+
+SIDECAR_ENV_FILE=/run/opencode-v2/sidecar-env
+
+sidecar_env_is_safe() {
+    [ -f "${SIDECAR_ENV_FILE}" ] \
+        && [ ! -L "${SIDECAR_ENV_FILE}" ] \
+        && [ "$(stat -c '%u:%g:%a:%h' "${SIDECAR_ENV_FILE}" 2>/dev/null || true)" = "0:0:600:1" ]
+}
+
+if ! sidecar_env_is_safe; then
+    [ "${1:-}" = "--check" ] || echo "claude-ha-mcp: Home Assistant tools are unavailable (OpenCode's MCP settings were not prepared)" >&2
+    exit 1
+fi
+# shellcheck disable=SC1090
+source "${SIDECAR_ENV_FILE}"
+
+case "${OPENCODE_MCP_TOOL_PROFILE:-}" in
+    compact|configuration|full) ;;
+    *) OPENCODE_MCP_ENABLED=false ;;
+esac
+if [ "${OPENCODE_MCP_ENABLED:-false}" != "true" ] || [ -z "${SUPERVISOR_TOKEN:-}" ]; then
+    [ "${1:-}" = "--check" ] || echo "claude-ha-mcp: Home Assistant tools are disabled in the app configuration" >&2
+    exit 1
+fi
+
+[ "${1:-}" = "--check" ] && exit 0
+
+mkdir -p /data/.cache/claude-code-mcp
+exec env -i \
+    HOME=/data \
+    USER=root \
+    LOGNAME=root \
+    SHELL=/bin/bash \
+    PATH=/usr/local/bin:/usr/bin:/bin \
+    LANG=C.UTF-8 \
+    NODE_OPTIONS=--max-old-space-size=512 \
+    TMPDIR=/data/.cache/claude-code-mcp \
+    ADDON_CHANNEL="${ADDON_CHANNEL:-stable}" \
+    SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}" \
+    HA_ACCESS_TOKEN="${HA_ACCESS_TOKEN:-}" \
+    OPENCODE_MCP_ENABLED=true \
+    OPENCODE_MCP_TOOL_PROFILE="${OPENCODE_MCP_TOOL_PROFILE}" \
+    OPENCODE_DECISION_NOTES="${OPENCODE_DECISION_NOTES:-false}" \
+    OPENCODE_DECISION_NOTES_DIR="${OPENCODE_DECISION_NOTES_DIR:-/homeassistant/opencode}" \
+    SCREENSHOT_ENABLED="${SCREENSHOT_ENABLED:-false}" \
+    PUPPETEER_EXECUTABLE_PATH="${PUPPETEER_EXECUTABLE_PATH:-/usr/bin/chromium}" \
+    Z2M_URL="${Z2M_URL:-}" \
+    Z2M_MQTT_TOPIC="${Z2M_MQTT_TOPIC:-}" \
+    LD_PRELOAD=/usr/local/lib/opencode-v2-non-dumpable.so \
+    node /opt/ha-mcp-server/index.js

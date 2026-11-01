@@ -1,4 +1,4 @@
 ---
-name: OpenCode
-url: https://github.com/magnusoverli/opencode
-maintainer: Magnus Overli
+name: OpenCode with Claude Code (daspangler1 fork)
+url: https://github.com/daspangler1/opencode
+maintainer: daspangler1 (fork of Magnus Overli's OpenCode)

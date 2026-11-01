@@ -56,6 +56,13 @@ FONT_SIZE=$(bashio::config 'font_size')
 CURSOR_STYLE=$(bashio::config 'cursor_style')
 CURSOR_BLINK=$(bashio::config 'cursor_blink')
 
+# Optional Claude Code window in the same tmux session.
+CLAUDE_CODE_ENABLED=$(bashio::config 'claude_code_enabled' 'false' 2>/dev/null || echo "false")
+export CLAUDE_CODE_ENABLED
+if [ "${CLAUDE_CODE_ENABLED}" = "true" ]; then
+    bashio::log.info "Claude Code terminal window: enabled (Ctrl+B then N to switch)"
+fi
+
 bashio::log.info "Terminal theme: ${TERMINAL_THEME}"
 
 # ==============================================================================
@@ -121,8 +128,8 @@ bashio::log.info "Starting ttyd on loopback port 8100 (behind Home Assistant ing
 # Start ttyd with configured options
 # Uses tmux to maintain a single persistent session. When a user disconnects
 # and reconnects, they reattach to the existing session instead of spawning
-# a new OpenCode instance. The -A flag means "attach if session exists,
-# otherwise create a new one".
+# a new OpenCode instance. opencode-terminal-session creates the session on
+# first connect (plus the Claude Code window when enabled) and attaches.
 # ==============================================================================
 
 # -I serves the custom index page built in the Dockerfile, which adds
@@ -154,4 +161,4 @@ exec ttyd \
     -t macOptionClickForcesSelection=true \
     -t scrollback=10000 \
     -t "theme=${THEME_JSON}" \
-    tmux new-session -A -s opencode /usr/local/bin/opencode-session.sh
+    /usr/local/bin/opencode-terminal-session

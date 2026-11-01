@@ -3,7 +3,8 @@ name: "OpenCode"
 description: "AI coding agent for editing Home Assistant configuration with deep MCP integration and LSP support"
 version: "3.3.4"
 slug: "ha_opencode"
-image: "ghcr.io/magnusoverli/ha_opencode"
+# No `image:` in this fork: Home Assistant builds the app locally from the
+# Dockerfile, so the Claude Code changes are included.
 url: "https://github.com/magnusoverli/opencode"
 arch:
   - aarch64
@@ -81,6 +82,7 @@ options:
   cursor_blink: false
   # Action-first response formatting for easier scanning and execution.
   focus_mode: false
+  claude_code_enabled: false
 
   # --- 2. Home Assistant integration -------------------------------------
   mcp_enabled: true
@@ -186,6 +188,7 @@ schema:
   cursor_style: list(block|underline|bar)
   cursor_blink: bool
   focus_mode: bool
+  claude_code_enabled: bool
 
   # --- 2. Home Assistant integration -------------------------------------
   mcp_enabled: bool

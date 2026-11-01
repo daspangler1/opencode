@@ -34,6 +34,10 @@ configuration:
     name: "Focus-friendly responses (beta)"
     description: "Ask OpenCode for action-first, concise, progress-aware replies that are quicker to scan and act on. Changes response wording only — it does not change permissions or safety confirmations."
 
+  claude_code_enabled:
+    name: "Claude Code terminal window"
+    description: "Adds a second terminal window running Anthropic's Claude Code in /homeassistant, with the same Home Assistant tools as OpenCode. Switch windows with Ctrl+B then N. Sign in with a Claude account or set ANTHROPIC_API_KEY in env_vars. Terminal interface only."
+
   mcp_enabled:
     name: "OpenCode Home Assistant tools"
     description: "Enables the bundled configuration, validation, diagnostics and administration tools. Independent of Home Assistant native tools and external MCP servers; the Full profile includes the authenticated HAB CLI gateway."

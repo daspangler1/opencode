@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- Add an optional Claude Code window to the terminal (`claude_code_enabled`, off by default). It pins Claude Code 2.1.302, keeps sign-in in `/data/claude-code`, gets the bundled Home Assistant MCP tools through a private stdio instance, and mirrors the sensitive-file read rule. OpenCode is unchanged when the option is off.
+
 ## 3.3.4
 
 **Before updating:** back up the stable app, its options and Home Assistant configuration. If 3.3.3 stopped at `v2_upgrade_records_changed`, update the same stable app to retry with the preserved data; do not delete databases or migration journals. Restore a pre-upgrade backup to roll back instead of downgrading against upgraded data.

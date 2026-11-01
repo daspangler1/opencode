@@ -346,6 +346,18 @@ Turn on **Focus-friendly responses (beta)** in the add-on **Configuration** tab 
 
 This is an output-formatting preference, not a medical feature. It does not diagnose ADHD, create a health profile, change model access, grant permissions, or bypass confirmations. Home Assistant safety requirements remain in effect: proposed changes, validation results, backups, destructive-action warnings, and explicit approval are still required. Ask for an explanation or walkthrough when you want more detail.
 
+## Claude Code (Optional)
+
+Turn on **Claude Code terminal window** (`claude_code_enabled`) to add Anthropic's [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) next to OpenCode in the terminal interface. It is off by default and changes nothing about OpenCode.
+
+- **Switching:** the terminal is one tmux session. Window 0 is OpenCode and window 1 is Claude Code; press `Ctrl+B` then `N` (or `Ctrl+B` then `0`/`1`) to switch. Both keep running when you close the browser tab.
+- **Signing in:** run `/login` in the Claude Code window to use a Claude subscription, or add `ANTHROPIC_API_KEY` under `env_vars`. Sign-in, settings and history are kept in `/data/claude-code` and included in app backups.
+- **Home Assistant tools:** when **OpenCode Home Assistant tools** is on, Claude Code gets the same bundled MCP tools under the name `home-assistant`, using the same tool profile, access token, Zigbee2MQTT, screenshot and decision-note settings. It starts its own private copy of the tools server and does not use OpenCode's server socket.
+- **Sensitive files:** when **Restrict access to sensitive files** is on, Claude Code gets matching read-deny rules for `secrets.yaml`, `.storage/`, `.cloud/`, `ssl/`, `*.key` and `*.pem`. As with OpenCode, shell commands are not restricted.
+- **Version:** the image pins one Claude Code release and disables its self-updater; app updates bring newer versions.
+
+**Security note:** unlike the OpenCode TUI, which runs as an unprivileged user and talks to the root server, Claude Code runs as root inside the app container, like the Home Assistant SSH terminal. It can read and change anything the app can reach, including `/homeassistant`, `/addon_configs` and the Supervisor API. Claude Code still asks before editing files or running commands unless you allow them. Only the terminal interface supports it; OpenChamber mode does not show the window.
+
 ## Add-on Folder Access
 
 OpenCode mounts `/addons` and `/addon_configs` for Home Assistant add-on development access. Turn on **Add-on folder guidance** in the add-on configuration and restart to show these paths in the terminal. This option updates guidance, but the mounts are static add-on metadata and are not a hard filesystem permission boundary.

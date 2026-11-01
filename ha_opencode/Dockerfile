@@ -119,6 +119,8 @@ ARG TINFOIL_VERSION=1.2.1
 ARG TSX_VERSION=4.23.15
 ARG YQ_VERSION=v4.54.1
 ARG ZIGPORTER_VERSION=1.4.2
+# Optional Claude Code CLI, opened from the terminal when claude_code_enabled is on.
+ARG CLAUDE_CODE_VERSION=2.1.302
 
 # Environment for better Node.js performance
 ENV NODE_ENV=production \
@@ -324,6 +326,14 @@ COPY --from=openchamber-builder /opt/openchamber-preview/packages/sdk /opt/openc
 COPY --from=openchamber-builder /opt/openchamber-preview/LICENSE /opt/openchamber-preview/LICENSE
 RUN test "$(node -p 'require("/opt/openchamber-preview/packages/web/package.json").version')" = "${OPENCHAMBER_VERSION}" \
     && printf '%s\n' "${OPENCHAMBER_VERSION}" > /usr/local/share/openchamber-certified-version
+
+# Claude Code CLI (optional terminal window, see claude_code_enabled). Pinned
+# like the other runtimes; its self-updater is disabled at launch.
+RUN npm install -g --no-audit --no-fund "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
+    && test "$(node -p 'require("/usr/local/lib/node_modules/@anthropic-ai/claude-code/package.json").version')" = "${CLAUDE_CODE_VERSION}" \
+    && DISABLE_AUTOUPDATER=1 claude --version \
+    && printf '%s\n' "${CLAUDE_CODE_VERSION}" > /usr/local/share/claude-code-version \
+    && npm cache clean --force
 
 # Copy root filesystem (server code, scripts, etc.)
 COPY rootfs /

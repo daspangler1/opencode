@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# ttyd entry point: one persistent tmux session shared by every browser tab.
+# Window 1 is OpenCode; window 2 is Claude Code when claude_code_enabled is on.
+set -u
+SESSION=opencode
+
+if ! tmux has-session -t "=${SESSION}" 2>/dev/null; then
+    # A parallel tab may win the race; then just attach to its session.
+    if tmux new-session -d -s "${SESSION}" -n opencode /usr/local/bin/opencode-session.sh 2>/dev/null \
+        && [ "${CLAUDE_CODE_ENABLED:-false}" = "true" ]; then
+        tmux new-window -d -t "${SESSION}:" -n claude /usr/local/bin/claude-code-session
+    fi
+elif ! tmux list-windows -t "=${SESSION}" -F '#{window_name}' | grep -qx opencode; then
+    # OpenCode exited while the Claude Code window kept the session alive.
+    tmux new-window -t "=${SESSION}:0" -n opencode /usr/local/bin/opencode-session.sh 2>/dev/null \
+        || tmux new-window -t "=${SESSION}:" -n opencode /usr/local/bin/opencode-session.sh
+fi
+
+exec tmux attach-session -t "=${SESSION}"
