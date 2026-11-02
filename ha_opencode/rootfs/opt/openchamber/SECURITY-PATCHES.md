@@ -9,6 +9,10 @@ The 2.5.2 refresh pins body-parser 2.4.0, undici 6.29.1 and Zod 4.6.6 to
 address GHSA-27r3-jxmh-p828, GHSA-4qv8-2p9j-2685,
 GHSA-xjj6-f33q-929c and GHSA-mrhx-c7xc-m3w5 without crossing their major versions.
 
+The daspangler1 fork also pins qs 6.16.1 and follow-redirects 1.16.2 for
+GHSA-6pq8-jhm2-2vcw and GHSA-mrwp-f3q8-3g9p (reported after 3.3.4 shipped);
+only the version and integrity of those two lock entries changed.
+
 To refresh: start from that exact upstream revision, run the patcher, then
 `bun install --lockfile-only --ignore-scripts` with the Dockerfile's pinned Bun.
 Review the lock diff and regenerate the image; never resolve a fresh lock during
