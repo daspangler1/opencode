@@ -1,8 +1,8 @@
 ---
 # Release CI reads selected channel pins below; the canonical devcontainer build
 # helper passes every entry under args. Keep every value aligned with its
-# Dockerfile ARG default. This fork has no `image:` in config.yaml, so Home
-# Assistant reads build_from and args here when it builds the app locally.
+# Dockerfile ARG default. Home Assistant itself does not read this file because
+# config.yaml sets `image:` (built by this fork's Build workflow).
 build_from:
   aarch64: ghcr.io/home-assistant/base-debian:trixie
   amd64: ghcr.io/home-assistant/base-debian:trixie

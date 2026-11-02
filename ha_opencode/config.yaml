@@ -3,8 +3,8 @@ name: "OpenCode"
 description: "AI coding agent for editing Home Assistant configuration with deep MCP integration and LSP support"
 version: "3.3.4"
 slug: "ha_opencode"
-# No `image:` in this fork: Home Assistant builds the app locally from the
-# Dockerfile, so the Claude Code changes are included.
+# Prebuilt by this fork's Build workflow (includes Claude Code).
+image: "ghcr.io/daspangler1/ha_opencode"
 url: "https://github.com/magnusoverli/opencode"
 arch:
   - aarch64
